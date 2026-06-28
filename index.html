@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>تقرير السوق اليومي</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg: #0b0e14;
+    --panel: #11151d;
+    --panel-2: #161b25;
+    --line: #232938;
+    --text: #e8eaf0;
+    --text-dim: #8b93a7;
+    --accent: #c9a35e;
+    --up: #3ddc84;
+    --down: #ef5b5b;
+    --radius: 14px;
+  }
+  *{box-sizing:border-box; margin:0; padding:0;}
+  html,body{
+    background: var(--bg); color: var(--text);
+    font-family: 'IBM Plex Sans Arabic', sans-serif;
+    direction: rtl; min-height:100vh;
+  }
+  body{
+    background-image:
+      radial-gradient(circle at 15% 0%, rgba(201,163,94,0.06), transparent 40%),
+      radial-gradient(circle at 85% 100%, rgba(61,220,132,0.04), transparent 40%);
+  }
+  .wrap{max-width: 960px; margin:0 auto; padding: 28px 20px 60px;}
+
+  header{
+    display:flex; justify-content:space-between; align-items:flex-start;
+    margin-bottom: 24px; padding-bottom: 20px; border-bottom: 1px solid var(--line);
+  }
+  .brand{display:flex; flex-direction:column; gap:4px;}
+  .brand .eyebrow{
+    font-family:'IBM Plex Mono', monospace; font-size:11px; letter-spacing:.12em;
+    color: var(--accent); text-transform:uppercase;
+  }
+  .brand h1{font-size: 22px; font-weight:700;}
+  .meta{text-align:left; font-family:'IBM Plex Mono', monospace; font-size:12px; color: var(--text-dim); direction:ltr;}
+  .meta .dot{display:inline-block; width:6px; height:6px; border-radius:50%; background: var(--up); margin-left:6px;}
+
+  .hero{
+    background: linear-gradient(180deg, var(--panel) 0%, var(--panel-2) 100%);
+    border:1px solid var(--line); border-radius: var(--radius);
+    padding: 26px 24px; margin-bottom: 20px;
+    display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:16px;
+  }
+  .hero .label{font-size:13px; color:var(--text-dim); margin-bottom:8px;}
+  .hero .value{font-family:'IBM Plex Mono', monospace; font-size:38px; font-weight:600; letter-spacing:-0.01em;}
+  .hero .sub{font-size:13px; color:var(--text-dim); margin-top:6px;}
+  .hero-right{display:flex; flex-direction:column; align-items:flex-end; gap:8px;}
+  .pill{
+    font-family:'IBM Plex Mono', monospace; font-size:15px; font-weight:600;
+    padding:8px 16px; border-radius: 999px; white-space:nowrap;
+  }
+  .pill.up{ background: rgba(61,220,132,0.12); color: var(--up); }
+  .pill.down{ background: rgba(239,91,91,0.12); color: var(--down); }
+  .pnl{font-family:'IBM Plex Mono', monospace; font-size:13px;}
+
+  .tabs{
+    display:flex; gap:4px; border-bottom: 1px solid var(--line); margin-bottom: 20px;
+  }
+  .tab-btn{
+    background:none; border:none; color:var(--text-dim);
+    font-family:'IBM Plex Sans Arabic', sans-serif; font-size:14px; font-weight:600;
+    padding: 12px 18px; cursor:pointer; border-bottom: 2px solid transparent;
+    transition: color .15s, border-color .15s;
+  }
+  .tab-btn.active{ color: var(--accent); border-bottom-color: var(--accent); }
+  .tab-panel{ display:none; }
+  .tab-panel.active{ display:block; animation: fadeIn .25s ease; }
+  @keyframes fadeIn{ from{opacity:0; transform:translateY(4px);} to{opacity:1; transform:translateY(0);} }
+
+  .section-title{
+    font-size:13px; color:var(--text-dim); letter-spacing:.06em; text-transform:uppercase;
+    margin: 4px 0 12px; font-family:'IBM Plex Mono', monospace;
+  }
+
+  .holdings{ border:1px solid var(--line); border-radius: var(--radius); overflow:hidden; }
+  .holdings-head, .holding{
+    display:grid; grid-template-columns: 1fr 1fr 1fr 1fr 1fr;
+    align-items:center; padding: 14px 16px; gap:8px;
+  }
+  .holdings-head{
+    background: var(--panel-2); font-size:11px; color: var(--text-dim);
+    font-family:'IBM Plex Mono', monospace; letter-spacing:.04em;
+  }
+  .holding{ background: var(--panel); border-top: 1px solid var(--line); font-size:13px; }
+  .ticker{
+    font-family:'IBM Plex Mono', monospace; font-weight:700; font-size:13px;
+    background: var(--panel-2); padding:4px 9px; border-radius:6px; display:inline-block;
+    direction:ltr;
+  }
+  .num{ font-family:'IBM Plex Mono', monospace; direction:ltr; text-align:left; }
+  .change.up{color:var(--up);} .change.down{color:var(--down);}
+  @media (max-width:680px){
+    .holdings-head{display:none;}
+    .holding{ grid-template-columns: 1fr 1fr; row-gap:6px; }
+    .holding .num::before{ content: attr(data-label) ": "; color:var(--text-dim); font-family:'IBM Plex Sans Arabic'; }
+  }
+
+  .news{display:flex; flex-direction:column; gap:10px;}
+  .news-item{
+    background: var(--panel); border:1px solid var(--line); border-radius: 10px;
+    padding: 14px 16px; font-size: 14px; line-height:1.75;
+  }
+  .news-item .tag{
+    font-family:'IBM Plex Mono', monospace; font-size:10px; color: var(--accent);
+    text-transform:uppercase; letter-spacing:.08em; display:block; margin-bottom:6px;
+  }
+  .rec-item{
+    background: var(--panel); border:1px solid var(--line); border-radius: 10px;
+    padding: 16px 18px; margin-bottom:10px;
+  }
+  .rec-item .rec-head{ display:flex; justify-content:space-between; align-items:center; margin-bottom:8px; }
+  .rec-badge{
+    font-family:'IBM Plex Mono', monospace; font-size:11px; font-weight:700;
+    padding: 4px 10px; border-radius:6px; text-transform:uppercase; letter-spacing:.04em;
+  }
+  .rec-badge.watch{ background: rgba(201,163,94,0.15); color: var(--accent); }
+  .rec-badge.risk{ background: rgba(239,91,91,0.15); color: var(--down); }
+  .rec-badge.opportunity{ background: rgba(61,220,132,0.15); color: var(--up); }
+  .rec-item .rec-ticker{ font-family:'IBM Plex Mono', monospace; font-weight:700; direction:ltr; }
+  .rec-item p{font-size:14px; line-height:1.75; color: var(--text);}
+  .disclaimer{
+    font-size:12px; color: var(--text-dim); text-align:center; margin-top:18px;
+    border-top:1px solid var(--line); padding-top:14px; line-height:1.7;
+  }
+
+  footer{
+    margin-top: 32px; padding-top:18px; border-top:1px solid var(--line);
+    font-size:12px; color: var(--text-dim); text-align:center;
+  }
+
+  @media (max-width:560px){
+    .hero{flex-direction:column; align-items:flex-start;}
+    .hero-right{align-items:flex-start;}
+    .hero .value{font-size:30px;}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <div class="brand">
+      <span class="eyebrow">Daily Market Brief</span>
+      <h1>تقرير السوق اليومي</h1>
+    </div>
+    <div class="meta" id="last-updated">
+      <span class="dot"></span>آخر تحديث: —
+    </div>
+  </header>
+
+  <div class="hero">
+    <div>
+      <div class="label">القيمة الإجمالية للمحفظة</div>
+      <div class="value" id="portfolio-value">$0.00</div>
+      <div class="sub" id="portfolio-cost">التكلفة: $0.00</div>
+    </div>
+    <div class="hero-right">
+      <div class="pill" id="portfolio-change">0.00%</div>
+      <div class="pnl" id="portfolio-pnl"></div>
+    </div>
+  </div>
+
+  <div class="tabs">
+    <button class="tab-btn active" data-tab="portfolio">المحفظة</button>
+    <button class="tab-btn" data-tab="news">الأخبار</button>
+    <button class="tab-btn" data-tab="recs">التوصيات</button>
+  </div>
+
+  <div class="tab-panel active" id="tab-portfolio">
+    <div class="section-title">أسهمي</div>
+    <div class="holdings">
+      <div class="holdings-head">
+        <span>الرمز</span><span>الكمية</span><span>السعر الحالي</span><span>القيمة</span><span>الربح/الخسارة</span>
+      </div>
+      <div id="holdings-list"></div>
+    </div>
+  </div>
+
+  <div class="tab-panel" id="tab-news">
+    <div class="section-title">أخبار وتحليل السوق</div>
+    <div class="news" id="news-list"></div>
+  </div>
+
+  <div class="tab-panel" id="tab-recs">
+    <div class="section-title">تحليل وأفكار للمراجعة</div>
+    <div id="recs-list"></div>
+    <div class="disclaimer">
+      هذا تحليل آلي لأغراض المعلومات والتعليم فقط، وليس توصية مالية مباشرة. يُتخذ القرار النهائي بناءً على تقييمك الخاص.
+    </div>
+  </div>
+
+  <footer>
+    يُحدَّث تلقائيًا يوميًا الساعة 10:00 صباحًا بتوقيت الرياض · مولّد عبر Claude
+  </footer>
+
+</div>
+
+<script>
+document.querySelectorAll('.tab-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+    document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+    btn.classList.add('active');
+    document.getElementById('tab-' + btn.dataset.tab).classList.add('active');
+  });
+});
+
+async function loadReport(){
+  try{
+    const res = await fetch('data.json?t=' + Date.now());
+    const data = await res.json();
+
+    document.getElementById('last-updated').innerHTML =
+      '<span class="dot"></span>آخر تحديث: ' + (data.updated_at || '—');
+
+    document.getElementById('portfolio-value').textContent =
+      '$' + Number(data.portfolio_value || 0).toLocaleString('en-US', {minimumFractionDigits:2, maximumFractionDigits:2});
+    document.getElementById('portfolio-cost').textContent =
+      'التكلفة: $' + Number(data.portfolio_cost || 0).toLocaleString('en-US', {minimumFractionDigits:2, maximumFractionDigits:2});
+
+    const change = Number(data.portfolio_change_pct || 0);
+    const changeEl = document.getElementById('portfolio-change');
+    changeEl.textContent = (change >= 0 ? '+' : '') + change.toFixed(2) + '%';
+    changeEl.className = 'pill ' + (change >= 0 ? 'up' : 'down');
+
+    const pnl = Number(data.portfolio_value || 0) - Number(data.portfolio_cost || 0);
+    const pnlEl = document.getElementById('portfolio-pnl');
+    pnlEl.textContent = (pnl >= 0 ? '+$' : '-$') + Math.abs(pnl).toLocaleString('en-US', {minimumFractionDigits:2, maximumFractionDigits:2}) + ' غير محقق';
+    pnlEl.style.color = pnl >= 0 ? 'var(--up)' : 'var(--down)';
+
+    const holdingsList = document.getElementById('holdings-list');
+    holdingsList.innerHTML = '';
+    (data.holdings || []).forEach(h => {
+      const chg = Number(h.change_pct || 0);
+      const value = Number(h.shares) * Number(h.price);
+      const costBasis = h.cost_basis ? Number(h.cost_basis) * Number(h.shares) : null;
+      const unrealized = costBasis !== null ? value - costBasis : null;
+      holdingsList.innerHTML += `
+        <div class="holding">
+          <span><span class="ticker">${h.ticker}</span></span>
+          <span class="num" data-label="الكمية">${h.shares}</span>
+          <span class="num" data-label="السعر">$${Number(h.price).toFixed(2)}</span>
+          <span class="num" data-label="القيمة">$${value.toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2})}</span>
+          <span class="num change ${chg>=0?'up':'down'}" data-label="التغير">${chg>=0?'+':''}${chg.toFixed(2)}%${unrealized!==null ? ' / ' + (unrealized>=0?'+$':'-$') + Math.abs(unrealized).toFixed(0) : ''}</span>
+        </div>`;
+    });
+
+    const newsList = document.getElementById('news-list');
+    newsList.innerHTML = '';
+    (data.news || []).forEach(n => {
+      newsList.innerHTML += `
+        <div class="news-item">
+          <span class="tag">${n.tag || 'سوق'}</span>
+          ${n.text}
+        </div>`;
+    });
+
+    const recsList = document.getElementById('recs-list');
+    recsList.innerHTML = '';
+    (data.recommendations || []).forEach(r => {
+      const badgeClass = r.type === 'risk' ? 'risk' : (r.type === 'opportunity' ? 'opportunity' : 'watch');
+      const badgeText = r.type === 'risk' ? 'مخاطرة' : (r.type === 'opportunity' ? 'فرصة' : 'مراقبة');
+      recsList.innerHTML += `
+        <div class="rec-item">
+          <div class="rec-head">
+            <span class="rec-ticker">${r.ticker || ''}</span>
+            <span class="rec-badge ${badgeClass}">${badgeText}</span>
+          </div>
+          <p>${r.text}</p>
+        </div>`;
+    });
+
+  }catch(e){
+    document.getElementById('holdings-list').innerHTML =
+      '<div class="holding">تعذّر تحميل البيانات — تحقق من ملف data.json</div>';
+    console.error(e);
+  }
+}
+loadReport();
+</script>
+</body>
+</html>
